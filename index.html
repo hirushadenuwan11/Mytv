@@ -1,1 +1,80 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Free Live TV Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; margin: 0; padding: 20px; }
+        h1 { margin-bottom: 20px; }
+        #player-container { max-width: 800px; margin: 0 auto; }
+        video { width: 100%; height: auto; border-radius: 8px; background: #000; }
+        #channel-list { margin-top: 20px; max-width: 800px; margin: 20px auto; text-align: left; }
+        select { width: 100%; padding: 12px; font-size: 16px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #444; }
+    </style>
+</head>
+<body>
+
+    <h1>📺 My Live TV Player</h1>
+
+    <div id="player-container">
+        <video id="video" controls autoplay></video>
+    </div>
+
+    <div id="channel-list">
+        <label for="channels">Select Channel:</label>
+        <select id="channels" onchange="playChannel(this.value)">
+            <option value="">-- Choose a Channel --</option>
+        </select>
+    </div>
+
+    <script>
+        const m3uUrl = "https://tivimate.viulk.xyz/channels.m3u";
+        const video = document.getElementById('video');
+        const channelSelect = document.getElementById('channels');
+        let hls;
+
+        // Fetch M3U Playlist
+        fetch(m3uUrl)
+            .then(response => response.text())
+            .then(data => {
+                const lines = data.split('\n');
+                let currentChannelName = "";
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('#EXTINF:')) {
+                        const parts = line.split(',');
+                        currentChannelName = parts[1] || "Unknown Channel";
+                    } else if (line.startsWith('http')) {
+                        const option = document.createElement('option');
+                        option.value = line;
+                        option.textContent = currentChannelName;
+                        channelSelect.appendChild(option);
+                    }
+                });
+            })
+            .catch(err => console.error("Error loading M3U:", err));
+
+        // Play Stream
+        function playChannel(url) {
+            if (!url) return;
+
+            if (Hls.isSupported()) {
+                if (hls) hls.destroy();
+                hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.play();
+            }
+        }
+    </script>
+</body>
+</html>
