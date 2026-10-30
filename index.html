@@ -1,80 +1,314 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="si">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Free Live TV Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>ፕሮ ප්‍රොෆෙෂනල් යකඩ කැපුම් සිස්ටම් එක</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; margin: 0; padding: 20px; }
-        h1 { margin-bottom: 20px; }
-        #player-container { max-width: 800px; margin: 0 auto; }
-        video { width: 100%; height: auto; border-radius: 8px; background: #000; }
-        #channel-list { margin-top: 20px; max-width: 800px; margin: 20px auto; text-align: left; }
-        select { width: 100%; padding: 12px; font-size: 16px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #444; }
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --border: #e2e8f0;
+            --success: #16a34a;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 16px;
+        }
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .app-header {
+            background: var(--primary);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .app-header h1 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+        .app-header p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .app-body {
+            padding: 24px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent);
+            padding-left: 8px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group.full {
+            grid-column: span 2;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            background-color: #f8fafc;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn-calculate {
+            width: 100%;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .btn-calculate:hover {
+            background-color: #1d4ed8;
+        }
+        .result-container {
+            margin-top: 24px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 20px;
+            display: none;
+        }
+        .result-container h3 {
+            color: var(--success);
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #dcfce7;
+            font-size: 14px;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item span {
+            font-weight: 600;
+            color: #166534;
+        }
+        .cutting-list {
+            margin-top: 15px;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dcfce7;
+        }
+        .cutting-list h4 {
+            font-size: 14px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .cutting-list ul {
+            padding-left: 20px;
+            font-size: 13px;
+            color: #475569;
+        }
+        .cutting-list li {
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>📺 My Live TV Player</h1>
-
-    <div id="player-container">
-        <video id="video" controls autoplay></video>
+<div class="app-container">
+    <div class="app-header">
+        <h1>⚙️ යකඩ වැඩපොළ කැපුම් සිස්ටම් එක</h1>
+        <p>Professional Metal Gate & Channel Cutting Optimizer</p>
     </div>
 
-    <div id="channel-list">
-        <label for="channels">Select Channel:</label>
-        <select id="channels" onchange="playChannel(this.value)">
-            <option value="">-- Choose a Channel --</option>
-        </select>
+    <div class="app-body">
+        <div class="section-title">නිර්මාණ වර්ගය සහ මිනුම්</div>
+        
+        <div class="form-group">
+            <label for="category">කාණ්ඩය (Category):</label>
+            <select id="category" onchange="updateFields()">
+                <option value="double_gate">පියන් දෙකේ ගේට්ටුව (Double Gate)</option>
+                <option value="triple_gate">පියන් තුනේ ගේට්ටුව (Triple Gate)</option>
+                <option value="single_gate">තනි පියනේ ගේට්ටුව (Single Gate)</option>
+                <option value="custom_channel">විශේෂ චැනල් රාමුව (Custom Channel Frame)</option>
+            </select>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="width">මුළු පළල (අඟල්):</label>
+                <input type="number" id="width" placeholder="උදා: 72">
+            </div>
+            <div class="form-group">
+                <label for="height">උස (අඟල්):</label>
+                <input type="number" id="height" placeholder="උදා: 60">
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="barLength">යකඩ බාර් එකක දිග (අඩි):</label>
+                <input type="number" id="barLength" value="20">
+            </div>
+            <div class="form-group">
+                <label for="boxSize">ಬොಕ್ಸ್ බාර් වර්ගය:</label>
+                <select id="boxSize">
+                    <option value="1x2">1" x 2" බොක්ස් බාර්</option>
+                    <option value="1x1">1" x 1" බොක්ස් බාර්</option>
+                    <option value="1.5x3">1.5" x 3" බොක්ස් බාර්</option>
+                    <option value="2x2">2" x 2" බොක්ස් බාර්</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-calculate" onclick="calculateCuts()">කැපුම් ලැයිස්තුව සාදන්න</button>
+
+        <div class="result-container" id="resultBox">
+            <h3>✅ ගණනය කිරීමේ ප්‍රතිඵලය</h3>
+            <div class="result-item">ගේට්ටු වර්ගය: <span id="resType">-</span></div>
+            <div class="result-item">අවශ්‍ය මුළු යකඩ දිග: <span id="resTotalInches">-</span></div>
+            <div class="result-item">අවශ්‍ය බාර් ගණන (Bars): <span id="resBarsCount">-</span></div>
+            
+            <div class="cutting-list">
+                <h4>📐 කපාගත යුතු අයුරු (Cutting Breakdown):</h4>
+                <ul id="resCutDetails">
+                    <!-- Dynamic Cutting list items will appear here -->
+                </ul>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script>
-        const m3uUrl = "https://www.m3u8player.online/iptv";
-        const video = document.getElementById('video');
-        const channelSelect = document.getElementById('channels');
-        let hls;
+<script>
+    function updateFields() {
+        // අදාළ කැටගරි වෙනස් වන විට අමතර සැකසුම් අවශ්‍ය නම් මෙහි ඇතුළත් කළ හැක
+    }
 
-        // Fetch M3U Playlist
-        fetch(m3uUrl)
-            .then(response => response.text())
-            .then(data => {
-                const lines = data.split('\n');
-                let currentChannelName = "";
+    function calculateCuts() {
+        const category = document.getElementById('category').value;
+        const width = parseFloat(document.getElementById('width').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const barLengthFt = parseFloat(document.getElementById('barLength').value);
+        const boxSize = document.getElementById('boxSize').value;
 
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (line.startsWith('#EXTINF:')) {
-                        const parts = line.split(',');
-                        currentChannelName = parts[1] || "Unknown Channel";
-                    } else if (line.startsWith('http')) {
-                        const option = document.createElement('option');
-                        option.value = line;
-                        option.textContent = currentChannelName;
-                        channelSelect.appendChild(option);
-                    }
-                });
-            })
-            .catch(err => console.error("Error loading M3U:", err));
-
-        // Play Stream
-        function playChannel(url) {
-            if (!url) return;
-
-            if (Hls.isSupported()) {
-                if (hls) hls.destroy();
-                hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    video.play();
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.play();
-            }
+        if (!width || !height || width <= 0 || height <= 0) {
+            alert('කරුණාකර නිවැරදි පළල සහ උස මිනුම් ඇතුළත් කරන්න!');
+            return;
         }
-    </script>
+
+        let totalInchesNeeded = 0;
+        let cutDetailsHTML = '';
+        let typeName = '';
+
+        if (category === 'double_gate') {
+            typeName = 'පියන් දෙකේ ගේට්ටුව (Double Gate)';
+            // පියන් දෙකක් සඳහා පිට රාමුව සහ මැද කොටස් දළ වශයෙන් ගණනය කිරීම
+            let outerPerimeter = (width * 2) + (height * 4);
+            let verticalStands = height * 2; // අභ්‍යන්තර බාර්
+            totalInchesNeeded = outerPerimeter + verticalStands;
+
+            let barInches = barLengthFt * 12;
+            let barsNeeded = Math.ceil(totalInchesNeeded / barInches);
+
+            cutDetailsHTML = `
+                <li>පිට රාමුව සඳහා උස අඟල් ${height} කැබලි 4 ක් අවශ්‍යයි.</li>
+                <li>පළල සඳහා අඟල් ${width} කැබලි 2 ක් අවශ්‍යයි.</li>
+                <li>අභ්‍යන්තර ආධාරක (Stands) සඳහා අඟල් ${height} කැබලි තවත් 2 ක් අවශ්‍යයි.</li>
+                <li>භාවිතා කරන බොක්ස් බාර් ප්‍රමාණය: <b>${boxSize}</b></li>
+            `;
+
+            document.getElementById('resType').innerText = typeName;
+            document.getElementById('resTotalInches').innerText = totalInchesNeeded + " අඟල් (අඩි " + (totalInchesNeeded/12).toFixed(1) + ")";
+            document.getElementById('resBarsCount').innerText = barsNeeded + " බාර් (සම්පූර්ණ " + barLengthFt + " අඩි)";
+            document.getElementById('resCutDetails').innerHTML = cutDetailsHTML;
+
+        } else if (category === 'triple_gate') {
+            typeName = 'පියන් තුනේ ගේට්ටුව (Triple Gate)';
+            let outerPerimeter = (width * 2) + (height * 6);
+            totalInchesNeeded = outerPerimeter;
+
+            let barInches = barLengthFt * 12;
+            let barsNeeded = Math.ceil(totalInchesNeeded / barInches);
+
+            cutDetailsHTML = `
+                <li>පියන් තුනක රාමුව සඳහා උස අඟල් ${height} කැබලි 6 ක් අවශ්‍යයි.</li>
+                <li>පළල සඳහා අඟල් ${width} කැබලි 2 ක් අවශ්‍යයි.</li>
+                <li>භාවිතා කරන බොක්ස් බාර් ප්‍රමාණය: <b>${boxSize}</b></li>
+            `;
+
+            document.getElementById('resType').innerText = typeName;
+            document.getElementById('resTotalInches').innerText = totalInchesNeeded + " අඟල් (අඩි " + (totalInchesNeeded/12).toFixed(1) + ")";
+            document.getElementById('resBarsCount').innerText = barsNeeded + " බාර් (සම්පූර්ණ " + barLengthFt + " අඩි)";
+            document.getElementById('resCutDetails').innerHTML = cutDetailsHTML;
+
+        } else {
+            typeName = 'වෙනත් නාලිකා/රාමුව (Custom Frame)';
+            totalInchesNeeded = (width * 2) + (height * 2);
+            let barInches = barLengthFt * 12;
+            let barsNeeded = Math.ceil(totalInchesNeeded / barInches);
+
+            cutDetailsHTML = `
+                <li>උස අඟල් ${height} කැබලි 2 ක්.</li>
+                <li>පළල අඟල් ${width} කැබලි 2 ක්.</li>
+            `;
+
+            document.getElementById('resType').innerText = typeName;
+            document.getElementById('resTotalInches').innerText = totalInchesNeeded + " අඟල්";
+            document.getElementById('resBarsCount').innerText = barsNeeded + " බාර්";
+            document.getElementById('resCutDetails').innerHTML = cutDetailsHTML;
+        }
+
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+
 </body>
 </html>
